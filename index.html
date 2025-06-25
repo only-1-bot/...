@@ -1,91 +1,156 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>GIF de beso</title>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Scroll</title>
   <style>
-    body {
-      background: #1a1a1a;
-      font-family: 'Quicksand', sans-serif;
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      max-height: 100dvh;
+      overflow-x: hidden;
+      font-family: sans-serif;
+      background: linear-gradient(135deg, #111, #222);
+      color: #fff;
+    }
+
+    .slider-container {
+      width: 100%;
+      overflow: hidden;
+      margin: 1rem auto;
+    }
+
+    .slider {
       display: flex;
-      flex-direction: column;
+      transition: transform 0.5s ease;
+    }
+
+    .slide {
+      min-width: 100vw;
+      height: 300px;
+      background: hotpink;
+      display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
+      font-size: 2rem;
     }
 
     #kissBtn {
-      background: linear-gradient(135deg, #ff9ebf, #ff69b4, #ff80ab);
-      background-size: 200% 200%;
-      animation: glowShift 5s ease infinite;
-      border: none;
-      border-radius: 14px;
+      background: #ff69b4;
       color: white;
-      font-family: 'Quicksand', sans-serif;
-      font-weight: 600;
-      font-size: 1.2rem;
-      padding: 0.8rem 2.2rem;
+      font-size: 1.5rem;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 12px;
+      display: block;
+      margin: 2rem auto;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3);
-      transition: all 0.3s ease;
-      user-select: none;
     }
 
-    @keyframes glowShift {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 100% 50%; }
-    }
-
-    #kissBtn:hover {
-      background-color: #ff4081;
-      color: #ffe4f1;
-      text-shadow: 2px 2px 5px rgba(255, 105, 180, 0.9);
-    }
-
-    #kissGifContainer {
+    #kissVideoContainer {
+      display: none;
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
       z-index: 1000;
     }
 
-    #kissGifContainer img {
-      max-width: 300px;
+    #kissVideo {
+      width: 300px;
       border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(255, 105, 180, 0.7);
-      user-select: none;
+      box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100dvh;
+      background: rgba(255, 105, 180, 0.3);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+      transition: opacity 0.3s ease;
+    }
+
+    #overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .heart {
+      position: fixed;
+      top: -10dvh;
+      font-size: 1rem;
+      animation: fall 6s linear infinite;
+      color: pink;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes fall {
+      100% {
+        transform: translateY(110dvh);
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
 
-  <button id="kissBtn">kiss?</button>
-
-  <div id="kissGifContainer">
-    <img src="https://media2.giphy.com/media/3oz8xsaLjLVqVXr3tS/giphy.gif" alt="kiss gif" />
+<div class="slider-container">
+  <div class="slider">
+    <div class="slide">Foto 1</div>
+    <div class="slide">Foto 2</div>
+    <div class="slide">Foto 3</div>
   </div>
+</div>
 
-  <script>
-    const kissBtn = document.getElementById('kissBtn');
-    const kissGifContainer = document.getElementById('kissGifContainer');
+<button id="kissBtn">kiss?</button>
 
-    kissBtn.addEventListener('click', () => {
-      kissBtn.style.transform = 'scale(0.96)';
-      setTimeout(() => kissBtn.style.transform = 'scale(1)', 150);
-      kissGifContainer.style.pointerEvents = 'auto';
-      kissGifContainer.style.opacity = '1';
-      setTimeout(() => {
-        kissGifContainer.style.opacity = '0';
-        kissGifContainer.style.pointerEvents = 'none';
-      }, 3000);
-    });
-  </script>
+<div id="overlay"></div>
+
+<div id="kissVideoContainer">
+  <video id="kissVideo" muted playsinline>
+    <source src="img/kiss.mp4" type="video/mp4" />
+  </video>
+</div>
+
+<script>
+  const kissBtn = document.getElementById('kissBtn');
+  const kissVideoContainer = document.getElementById('kissVideoContainer');
+  const kissVideo = document.getElementById('kissVideo');
+  const overlay = document.getElementById('overlay');
+
+  kissBtn.addEventListener('click', () => {
+    kissVideoContainer.style.display = 'block';
+    kissVideo.currentTime = 0;
+    kissVideo.play();
+    overlay.classList.add('active');
+
+    kissVideo.onended = () => {
+      kissVideoContainer.style.display = 'none';
+      overlay.classList.remove('active');
+    };
+  });
+
+  // Corazones animados
+  function crearCorazones(cantidad = 20) {
+    for (let i = 0; i < cantidad; i++) {
+      const heart = document.createElement('span');
+      heart.className = 'heart';
+      heart.textContent = ['💖','💕','💘'][Math.floor(Math.random() * 3)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDelay = Math.random() * 5 + 's';
+      document.body.appendChild(heart);
+    }
+  }
+
+  crearCorazones();
+</script>
 
 </body>
 </html>
